@@ -1,5 +1,4 @@
 const mongoose = require("mongoose"); //import lib
-require("dotenv").config(); //import
 
 const password = process.env.PASSWORD; // access psw parameter 2y9jalVcqfhOXsrA
 

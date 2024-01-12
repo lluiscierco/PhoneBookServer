@@ -1,4 +1,5 @@
 // Imports
+require("dotenv").config(); //import
 const express = require("express"); //import express
 var morgan = require("morgan");
 const Person = require("./models/person"); // Import DB model
