@@ -1,9 +1,10 @@
 const mongoose = require("mongoose"); //import lib
+require("dotenv").config(); //import
 
-const password = "2y9jalVcqfhOXsrA"; // access psw parameter 2y9jalVcqfhOXsrA
+const password = process.env.PASSWORD; // access psw parameter 2y9jalVcqfhOXsrA
 
 // URI of DB, accessed from website
-const url = `mongodb+srv://lluiscierco:${password}@phonebookdb.5tnb44z.mongodb.net/?retryWrites=true&w=majority`;
+const url = process.env.MONGODB_URI;
 
 console.log("connecting to MongoDB");
 
@@ -19,8 +20,21 @@ mongoose
 
 // Define scheme for the documents (objects) of the collection (dictionary)
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
+  number: {
+    validate: {
+      validator: function (value) {
+        // Phone number format: XX-XXXXXXX or XXX-XXXXXXX
+        return /^\d{2,3}-\d{7,8}$/.test(value);
+      },
+    },
+    type: String,
+    required: true,
+  },
 });
 
 // Change toJSON method so it doesnt return id and version when fetching from DB

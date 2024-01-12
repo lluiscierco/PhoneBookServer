@@ -31,10 +31,14 @@ let phonebook = [
 
 // Middleware Functions
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
+  //console.error(error.message);
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  }
+  if (error.name === "ValidationError") {
+    console.log("Validation error", error.message);
+    return response.status(400).send({ error: error.message });
   }
 
   next(error); // pass to next middleware or default handling
@@ -73,7 +77,7 @@ app.get("/api/persons", (request, response) => {
     .catch((error) => console.log(error.message));
 });
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
   const id = Number(request.params.id);
   Person.findById(id)
     .then((person) => {
@@ -86,7 +90,7 @@ app.get("/api/persons/:id", (request, response) => {
     .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
   Person.findByIdAndDelete(id)
     .then((person) => {
@@ -96,17 +100,20 @@ app.delete("/api/persons/:id", (request, response) => {
     .catch((error) => next(error));
 });
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const newContact = request.body;
   const person = new Person({
     name: newContact.name,
     number: newContact.number,
   });
 
-  person.save().then((person) => {
-    console.log(person);
-    response.json(person);
-  });
+  person
+    .save()
+    .then((person) => {
+      console.log(person);
+      response.json(person);
+    })
+    .catch((error) => next(error));
   /*
   const newContact = request.body;
   const id = Math.floor(Math.random() * 1000000);
